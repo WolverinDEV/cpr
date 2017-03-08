@@ -40,7 +40,7 @@ add_library(${CPR_LIBRARIES}
     "${CPR_INCLUDE_DIRS}/cpr/session.h"
     "${CPR_INCLUDE_DIRS}/cpr/timeout.h"
     "${CPR_INCLUDE_DIRS}/cpr/util.h"
-    "${CPR_INCLUDE_DIRS}/cpr/ssl_options.h" ../include/cpr/status.h)
+    "${CPR_INCLUDE_DIRS}/cpr/ssl_options.h" ../include/cpr/status.h ../include/cpr/InfoParser.h ../test/inforeader_tests.cpp)
 
 message(STATUS "Using CURL_LIBRARIES: ${CURL_LIBRARIES}.")
 target_link_libraries(${CPR_LIBRARIES}

@@ -19,6 +19,7 @@
 #include "cpr/low_speed.h"
 #include "cpr/ssl_options.h"
 #include "cpr/status.h"
+#include "cpr/InfoParser.h"
 
 namespace cpr {
 
@@ -48,6 +49,7 @@ class Session {
     void SetLowSpeed(const LowSpeed& low_speed);
     void SetVerifySsl(const VerifySsl& verify);
     void SetProgress(const Progress& status);
+    void SetInfoParser(const InfoReader& parser);
 
     // Used in templated functions
     void SetOption(const Url& url);

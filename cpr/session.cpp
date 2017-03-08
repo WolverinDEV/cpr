@@ -5,6 +5,7 @@
 #include <string>
 
 #include <curl/curl.h>
+#include <cpr/cpr.h>
 
 #include "cpr/curlholder.h"
 #include "cpr/util.h"
@@ -36,6 +37,7 @@ class Session::Impl {
     void SetLowSpeed(const LowSpeed& low_speed);
     void SetVerifySsl(const VerifySsl& verify);
     void SetProgress(const Progress& progress);
+    void SetInfoParser(const InfoReader& parser);
 
     Response Delete();
     Response Get();
@@ -50,6 +52,7 @@ class Session::Impl {
     Url url_;
     Parameters parameters_;
     Proxies proxies_;
+    InfoReader reader = nullptr;
 
     Response makeRequest(CURL* curl);
     static void freeHolder(CurlHolder* holder);
@@ -301,6 +304,10 @@ void Session::Impl::SetProgress(const Progress &progress) {
     }
 }
 
+void Session::Impl::SetInfoParser(const InfoReader &parser) {
+    this->reader = parser;
+}
+
 Response Session::Impl::Delete() {
     auto curl = curl_->handle;
     if (curl) {
@@ -408,6 +415,7 @@ Response Session::Impl::makeRequest(CURL* curl) {
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
     curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &elapsed);
     curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &raw_url);
+    reader.parseInfo(curl);
 
     Error error(curl_error, curl_->error);
 
@@ -456,6 +464,7 @@ void Session::SetBody(Body&& body) { pimpl_->SetBody(std::move(body)); }
 void Session::SetLowSpeed(const LowSpeed& low_speed) { pimpl_->SetLowSpeed(low_speed); }
 void Session::SetVerifySsl(const VerifySsl& verify) { pimpl_->SetVerifySsl(verify); }
 void Session::SetProgress(const Progress& progress) { pimpl_->SetProgress(progress); }
+void Session::SetInfoParser(const InfoReader &parser) { pimpl_->SetInfoParser(parser); }
 
 void Session::SetOption(const Url& url) { pimpl_->SetUrl(url); }
 void Session::SetOption(const Parameters& parameters) { pimpl_->SetParameters(parameters); }
