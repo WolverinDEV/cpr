@@ -505,6 +505,27 @@ static int putUnallowed(struct mg_connection* conn) {
     return MG_TRUE;
 }
 
+static int getProgress(struct mg_connection* conn) {
+    if (std::string{conn->request_method} != std::string{"GET"}) {
+        auto response = std::string{"Method unallowed"};
+        mg_send_status(conn, 405);
+        mg_send_header(conn, "content-type", "text/html");
+        mg_send_data(conn, response.data(), response.length());
+    } else {
+        int dataLength = 1024*1024;
+        auto data = malloc(dataLength);
+        memset(data, 0, dataLength);
+
+        mg_send_status(conn, 200);
+        mg_send_header(conn, "content-type", "binary");
+        mg_send_header(conn, "content-length", "1048576");
+        mg_send_data(conn, data, dataLength);
+
+        free(data);
+    }
+    return MG_TRUE;
+}
+
 static int evHandler(struct mg_connection* conn, enum mg_event ev) {
     switch (ev) {
         case MG_AUTH:
@@ -565,6 +586,8 @@ static int evHandler(struct mg_connection* conn, enum mg_event ev) {
                 return patch(conn);
             } else if (Url{conn->uri} == "/patch_unallowed.html") {
                 return patchUnallowed(conn);
+            } else if (Url{conn->uri} == "/progress_request.html") {
+                return getProgress(conn);
             }
             return MG_FALSE;
         default:

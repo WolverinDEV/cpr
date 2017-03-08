@@ -35,6 +35,7 @@ class Session::Impl {
     void SetBody(const Body& body);
     void SetLowSpeed(const LowSpeed& low_speed);
     void SetVerifySsl(const VerifySsl& verify);
+    void SetProgress(const Progress& progress);
 
     Response Delete();
     Response Get();
@@ -291,6 +292,15 @@ void Session::Impl::SetVerifySsl(const VerifySsl& verify) {
     }
 }
 
+void Session::Impl::SetProgress(const Progress &progress) {
+    auto curl = curl_->handle;
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress.function);
+        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, progress.data == nullptr ? 0L : progress.data);
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
+    }
+}
+
 Response Session::Impl::Delete() {
     auto curl = curl_->handle;
     if (curl) {
@@ -445,6 +455,8 @@ void Session::SetBody(const Body& body) { pimpl_->SetBody(body); }
 void Session::SetBody(Body&& body) { pimpl_->SetBody(std::move(body)); }
 void Session::SetLowSpeed(const LowSpeed& low_speed) { pimpl_->SetLowSpeed(low_speed); }
 void Session::SetVerifySsl(const VerifySsl& verify) { pimpl_->SetVerifySsl(verify); }
+void Session::SetProgress(const Progress& progress) { pimpl_->SetProgress(progress); }
+
 void Session::SetOption(const Url& url) { pimpl_->SetUrl(url); }
 void Session::SetOption(const Parameters& parameters) { pimpl_->SetParameters(parameters); }
 void Session::SetOption(Parameters&& parameters) { pimpl_->SetParameters(std::move(parameters)); }
